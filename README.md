@@ -1,4 +1,4 @@
-# prevail_availability_test
+# Prevail 2022 : DevQosOps Workshop - Availability Testing Track
 
 Clone this repo..
 cd prevail_availability
