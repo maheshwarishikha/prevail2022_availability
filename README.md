@@ -1,24 +1,55 @@
 # Prevail 2022 : DevQosOps Workshop - Availability Testing Track
 
-Clone this repo..
-cd prevail_availability
-## Create project istio-system
-oc new-project istio-system</br>
+Availability of an application deployed on OpenShift will be tested in the Availability track of the workshop.
+
+## Pre-requisites:
+
+   * You must have created an IBM Cloud Account.
+   * Download the files attached in this repository.
+   * Python3
+
+## Steps
+
+Please execute the steps as mentioned below.
+
+**1. Clone the code.**
+
+```
+git clone https://github.com/maheshwarishikha/prevail2022_availability.git
+```
+
+In this repository, `aspects/availability/automated-demo` folder contains the scripts to do setup automatically. The manual steps are also provided in the `ChaosEngineringWithOpenshiftServiceMesh.md` of the cloned repository for your better understanding.
+
+**2. Create project **
+
+```
+oc new-project istio-system
+```
+
 ![image](https://user-images.githubusercontent.com/45451838/128295909-b2ea9da1-c76e-4dff-8311-7513c3e48449.png)
 
-## Openshift operators installation
-Red Hat Elasticsearch</br>
-Openshift jaeger </br>
-Kiali </br>
-Openshift Service Mesh</br>
+**3. Openshift operators installation **
+
+* Red Hat Elasticsearch
+* Openshift jaeger
+* Kiali
+* Openshift Service Mesh
+
 ![image](https://user-images.githubusercontent.com/45451838/128295863-8273b748-104b-4147-9038-a05f1a10bef5.png)
 
 
-## Configure Openshift Service Mesh Control Plane to create a sidecar system which will track the cluster microservices
+**4. Configure Openshift Service Mesh Control Plane **
+
+It creates a sidecar system which will track the cluster microservices.
+
 ![image](https://user-images.githubusercontent.com/45451838/128295785-4a926166-6463-483b-b18b-5098c8324379.png)
 
-## Configure Openshift Service Mesh Member Rolls by using below yaml (in this example appname will be bookinfo)
+**5. Configure Openshift Service Mesh Member Rolls **
+
+Use the below yaml (in this example appname will be bookinfo) to create member roll.
+
 ![image](https://user-images.githubusercontent.com/45451838/128295772-e398d785-4c0f-400c-8fb7-4e7e0fcb5561.png)
+
 ```
 apiVersion: maistra.io/v1
 kind: ServiceMeshMemberRoll
@@ -30,43 +61,116 @@ spec:
     - bookinfo
 ```
 
+**6. Application deployment**
 
-## bookinfo namespace and application deployment
-oc new-project bookinfo </br>
-oc apply -f https://raw.githubusercontent.com/Maistra/istio/maistra-2.0/samples/bookinfo/platform/kube/bookinfo.yaml </br>
-oc get pods </br>
-oc get routes -n istio-system istio-ingressgateway </br>
+```
+oc new-project bookinfo
+oc apply -f https://raw.githubusercontent.com/Maistra/istio/maistra-2.0/samples/bookinfo/platform/kube/bookinfo.yaml
+oc get pods
+oc get services
+```
 
-## exporting the hostname
-export INGRESS_HOST= output from last command </br>
+**7. Define the Ingress Gateway**
+
+Now that the Bookinfo services are up and running, you need to make the application accessible from outside of your cluster, e.g., from a browser. An Ingress Gateway is used for this purpose.
+
+```
+oc create -f https://raw.githubusercontent.com/Maistra/istio/maistra-2.0/samples/bookinfo/networking/bookinfo-gateway.yaml
+```
+
+Confirm the gateway has been created:
+
+```
+oc get gateway
+```
+
+**8. Export the hostname**
+
+```
+oc get routes -n istio-system istio-ingressgateway
+export INGRESS_HOST=<output from previous command>
+```
+
 ![image](https://user-images.githubusercontent.com/45451838/128295680-10b786d8-ec59-4a7f-9691-047f6d4b4d85.png)
 
+
 ![image](https://user-images.githubusercontent.com/45451838/128295673-f6f0075f-cb2a-4ea4-b7b6-45d708906ce0.png)
-oc create -f https://raw.githubusercontent.com/Maistra/istio/maistra-2.0/samples/bookinfo/networking/bookinfo-gateway.yaml </br>
-## fake traffic generation
-for i in {1..20}; do sleep 0.5; curl -I $INGRESS_HOST/productpage; done</br>
 
-## install chaostoolkit
-python3 -m venv ~/.venvs/chaostk</br>
-source ~/.venvs/chaostk/bin/activate</br>
-pip install -U chaostoolkit</br>
-chaos --help</br>
 
-## install chaos toolkit kubernetes extension </br>
+To confirm that the Bookinfo application is accessible from outside the cluster, run the following curl command:
 
-pip install -U chaostoolkit-kubernetes</br>
-chaos discover chaostoolkit-kubernetes</br>
+```
+$ curl -s "http://${INGRESS_HOST}/productpage" | grep -o "<title>.*</title>"
+<title>Simple Bookstore App</title>
+```
 
-## start killing application pods experiments </br>
-chaos run chaos/terminate-pod.yaml</br>
-![image](https://user-images.githubusercontent.com/45451838/128295569-4924fbf3-a468-4f82-8644-89e74576a411.png)
+Alternatively, you can access the app using the browser.
 
-## Check the applications product page
-http://{INGRESS_HOST}/productpage </br>
-## Now check kiali, grafana, jaeger dashboards to analyse availability/ resiliency of the full system
+```
+http://{INGRESS_HOST}/productpage
+```
+
+**9. Access the different dashboards**
+
+Go to OpenShift web console and access `istio-system` project. It will show as:
+
+<img width="1545" alt="image" src="https://user-images.githubusercontent.com/10827415/138044256-ab528b7a-f562-40d4-9fcf-dc2431865ad9.png">
+
+Access the Kiali, Grafana, Jaeger dashboards to analyse the deployed application to analyse availability/resiliency of the full system.
+
 ![image](https://user-images.githubusercontent.com/45451838/128295542-00ae1107-c424-4e1e-be91-a06032a784a2.png)
 
 ![image](https://user-images.githubusercontent.com/45451838/128295522-46591c5c-3a7e-4131-a970-100a6ee9472c.png)
+
 ![image](https://user-images.githubusercontent.com/45451838/128300134-581cc5af-cea3-45c5-ab94-4649d9fde915.png)
+
 ![image](https://user-images.githubusercontent.com/45451838/128300198-ac581406-cced-4d25-a46c-5b515659a3cf.png)
 
+
+**10. Install Chaos toolkit
+
+Check if `python3` is already installed. If it is not, install it using the following command.
+
+```
+sudo yum install python3
+```
+
+Perform the following steps further.
+
+```
+python3 -m venv ~/.venvs/chaostk
+source ~/.venvs/chaostk/bin/activate
+pip install -U chaostoolkit
+chaos --help
+```
+
+**11. Install Chaos toolkit Kubernetes extension**
+
+```
+pip install -U chaostoolkit-kubernetes
+chaos discover chaostoolkit-kubernetes
+```
+
+**12. Fake traffic generation**
+
+Traffic can be generated by using following inline script. Please replace the `INGRESS_HOST` with its value as noted in `step 8`.
+
+```
+for i in {1..20}; do sleep 0.5; curl -I $INGRESS_HOST/productpage; done
+```
+
+**13. Experiment to kill application pod**
+
+One of the chaos experiment can be run as:
+
+```
+source ~/.venvs/chaostk/bin/activate
+chaos run chaos/terminate-pod.yaml
+```
+
+![image](https://user-images.githubusercontent.com/45451838/128295569-4924fbf3-a468-4f82-8644-89e74576a411.png)
+
+
+**14. Analyze the results through the different dashboards**
+
+You can check kiali, grafana, jaeger dashboards to analyse availability/resiliency of the full system.
