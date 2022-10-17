@@ -1,4 +1,4 @@
-# Prevail 2022 : DevQosOps Workshop - Availability Testing Track
+# Prevail 2022 : DevQosOps Workshop - Availability Track
 
 Availability of an application deployed on OpenShift will be tested in the Availability track of the workshop.
 
