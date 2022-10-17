@@ -5,8 +5,7 @@ Availability of an application deployed on OpenShift will be tested in the Avail
 ## Pre-requisites:
 
    * You must have created an IBM Cloud Account.
-   * Download the files attached in this repository.
-   * Python3
+   
 
 ## Steps
 
