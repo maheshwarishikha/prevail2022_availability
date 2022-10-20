@@ -159,7 +159,7 @@ One of the chaos experiment can be run as:
 
 ```
 source ~/.venvs/chaostk/bin/activate
-chaos run chaos/terminate-pod.yaml
+chaos run terminate-pod.yaml
 ```
 
 ![image](https://user-images.githubusercontent.com/45451838/128295569-4924fbf3-a468-4f82-8644-89e74576a411.png)
